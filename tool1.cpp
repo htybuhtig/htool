@@ -81,7 +81,14 @@ void initbutton(){
 	fillrectangle(0,100,100,200);
 	settextcolor(WHITE);
 	settextstyle(24,12,"");
-	outtextxy(1,138, "人机验证");
+	outtextxy(1,138, "验证码");
+	//2-1
+	setfillcolor(BLACK);
+	setlinecolor(YELLOW);
+	fillrectangle(100,100,200,200);
+	settextcolor(WHITE);
+	settextstyle(24,12,"");
+	outtextxy(101,138, "红绿灯");
 	//4-1
 	setfillcolor(BLACK);
 	setlinecolor(YELLOW);
@@ -170,7 +177,12 @@ int run(){
 			if(msg.y>=100 && msg.y<200){
 				if(msg.x>=0&&msg.x<100&&isjihuo()){
 					cls();
-					mainrecaptcha();
+					mainrecaptcha(0,5);
+					return 0;
+				}
+				if(msg.x>=100&&msg.x<200&&isjihuo()){
+					cls();
+					mainrecaptcha(5,0);
 					return 0;
 				}
 			}

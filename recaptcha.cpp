@@ -15,7 +15,7 @@ CAPTCHA cha[15];
 int drawcaptcha(int n){
 	cls();
 	
-	setlinecolor(YELLOW);
+	setlinecolor(WHITE);
 	string fn = "recaptcha\\1 ("+to_string(n)+").jpg";
 	IMAGE img;
     loadimage(&img,fn.c_str(), 400, 400);
@@ -64,6 +64,9 @@ vector<int> getchoosecha(){
 				else{
 					ans.push_back(p);
 					cout<<"choose p:"<<p<<endl;
+					setlinecolor(YELLOW);
+					rectangle(dx*100,dy*100,dx*100+100,dy*100+100);
+					setlinecolor(WHITE);
 				}
 			}
 			if(msg.x>400&&msg.x<=500&&msg.y>=300&&msg.y<400){
@@ -91,6 +94,7 @@ int getfen(vector<int> a,vector<int> b){
 	return ans;
 }
 int photorecaptcha(int n){
+	if(n==0) return 1;
 	int cnt = 0,len;
 	int g[101];
 	memset(g,0,sizeof g);
@@ -103,6 +107,7 @@ int photorecaptcha(int n){
 		while(g[t]!=0){
 			t=rand()%len;
 		}
+		g[t]=1;
 		q.push(t+1);
 		cout<<"push to q:"<<t+1<<endl;
 	}
@@ -143,17 +148,122 @@ int photorecaptcha(int n){
 	    loadimage(&ok1,"recaptcha\\end.png");
 	    putimage(600-278,50,&ok1);
 	}
-	Sleep(1000);
+	Sleep(1500);
+	return res;
+}
+string ch = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%";
+string chyb = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ@#$%";
+string chkey = "QWERTYUIOPASDFGHJKL@ZXCVBNM#$%1234567890";
+int drawkeys(){
+	setfillcolor(BLACK);
+	setlinecolor(YELLOW);
+	settextcolor(WHITE);
+	settextstyle(24,12,"");
+	for(int i = 0;i<4;i++){
+		for(int j = 0;j<10;j++){
+			int p = j+i*10;
+			int dy = 200+i*50;
+			int dx = j*50;
+			fillrectangle(dx,dy,dx+50,dy+50);
+			outtextxy(dx+3,dy+5,chkey[p]);
+		}
+	}
+	fillrectangle(0,150,600,200);
+	fillrectangle(500,200,600,300);
+	outtextxy(503,205,"х╥хо");
+	fillrectangle(500,300,600,400);
+	outtextxy(503,305,"DEL");
+}
+string inputstr(){
+	setfillcolor(BLACK);
+	setlinecolor(YELLOW);
+	settextcolor(WHITE);
+	settextstyle(24,12,"");
+	string s;
 	while(1){
 		MOUSEMSG msg;
 		msg = GetMouseMsg();
 		if(msg.uMsg == WM_LBUTTONDOWN){
-			break;
+			if(msg.y>200){
+				if(msg.x<500){
+					int dx = msg.x/50;
+					int dy = (msg.y-200)/50;
+					int p = dy*10+dx;
+					char c = chkey[p];
+					s+=c;
+				}
+				else{
+					if(msg.y<300){
+						break;
+					}
+					else{
+						if(s.size()>0) s.erase(s.size()-1);
+					}
+				}
+			}
+			fillrectangle(0,150,600,200);
+			outtextxy(3,152,s.c_str());
 		}
 	}
-	return res;
+	return s;
 }
-int mainrecaptcha(){
+int drawcha(string s){
+	fillrectangle(0,0,200,100);
+	settextstyle(rand()%16+18,rand()%8+16,"B");
+	settextcolor(rand()%2==0 ? YELLOW : WHITE);
+	outtextxy(rand()%10+5,rand()%80+5,s[0]);
+	settextstyle(rand()%16+18,rand()%8+16,"B");
+	settextcolor(rand()%2==0 ? YELLOW : WHITE);
+	outtextxy(rand()%10+55,rand()%80+5,s[1]);
+	settextstyle(rand()%16+18,rand()%8+16,"B");
+	settextcolor(rand()%2==0 ? YELLOW : WHITE);
+	outtextxy(rand()%10+105,rand()%80+5,s[2]);
+	settextstyle(rand()%16+18,rand()%8+16,"B");
+	settextcolor(rand()%2==0 ? YELLOW : WHITE);
+	outtextxy(rand()%10+155,rand()%80+5,s[3]);
+	for(int i = 0;i<20;i++){
+		setlinecolor(rand()%2==0 ? YELLOW : WHITE);
+		line(rand()%200,rand()%100,rand()%200,rand()%100);
+	}
+	for(int i = 0;i<6;i++){
+		setlinecolor(rand()%2==0 ? YELLOW : WHITE);
+		circle(rand()%100+25,rand()%50+24,rand()%25);
+		rectangle(rand()%200,rand()%100,rand()%200,rand()%100);
+	}
+	setfillcolor(BLACK);
+	setlinecolor(YELLOW);
+	rectangle(0,0,200,100);
+	settextcolor(WHITE);
+}
+int charrecaptcha(){
+	cls();
+	string s;
+	for(int i = 0;i<4;i++){
+		s += chyb[rand()%chyb.size()];
+	}
+	drawkeys();
+	drawcha(s);
+	string t = inputstr();
+	cout<<"s is:"<<s<<endl;
+	cout<<"t is:"<<t<<endl;
+	return (t==s);
+}
+int mainrecaptcha(int a = 0,int b = 8){
 	srand(time(0));
-	photorecaptcha(4);
+	int r1 = 1;
+	if(a!=0) r1=photorecaptcha(a);
+	int r2 = 0;
+	for(int i = 0;i<b;i++){
+		r2 += charrecaptcha();
+		cout<<"i:"<<i<<" r:"<<r2<<endl;
+	}
+	cout<<"r1:"<<r1<<" r2:"<<r2<<endl;
+	if(r1+r2==1+b){
+		cls();
+		IMAGE ok1;
+	    loadimage(&ok1,"recaptcha\\end.png");
+	    putimage(250,100,&ok1);
+	}
+	Sleep(1000);
+	return (r1+r2)==(b+1);
 }
